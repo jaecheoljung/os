@@ -35,11 +35,9 @@ int32u_t eos_create_task(eos_tcb_t *task, addr_t sblock_start, size_t sblock_siz
 	task->state 		= READY;
 	
 	//Load task on ready queue
-
 	_os_add_node_tail(&(_os_ready_queue[priority]), &(task->node));
-	_os_set_ready(priority);
+
 	PRINT("task: 0x%x, priority: %d\n", (int32u_t)task, priority);
-	
 	return 0;
 }
 
@@ -71,7 +69,6 @@ void eos_schedule() {
 
 	//Pop it from queue.
 	_os_remove_node(&(_os_ready_queue[p]), &(_os_current_task->node));
-	if (_os_ready_queue[p] == NULL) _os_unset_ready(p);
 
 	//Restore its context.
 	_os_restore_context(_os_current_task->sp);

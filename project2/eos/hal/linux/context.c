@@ -50,7 +50,7 @@ void _os_restore_context(addr_t sp) {
 
 addr_t _os_save_context() {
 	__asm__ __volatile__(
-			"push	$resume_eip\n"
+			"push	$resume_point\n"
 			"push 	_eflags\n"
 			"pusha\n"
 			"movl	$0, -12(%%ebp)\n"
@@ -58,7 +58,7 @@ addr_t _os_save_context() {
 			"push 	4(%%ebp)\n"
 			"push 	0(%%ebp)\n"
 			"mov 	%%esp, %%ebp\n"
-			"resume_eip:\n"
+			"resume_point:\n"
 			"leave\n"
 			"ret\n"
 			::

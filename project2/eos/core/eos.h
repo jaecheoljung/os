@@ -84,8 +84,8 @@ typedef struct tcb {
 	addr_t 		sp;
 	addr_t		sblock_start;
 	size_t		sblock_size;
-	void (*entry)(void *arg);
-	void *		arg;
+	void 		(*entry)(void *arg);
+	void*		arg;
 	_os_node_t	node;
 
 } eos_tcb_t;
