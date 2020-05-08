@@ -2,8 +2,10 @@
 #include <core/eos_internal.h>
 #include "emulator_asm.h"
 
+/************
+Model structure for context
+************/
 typedef struct _os_context {
-	/* low address */
 	int32u_t edi;
 	int32u_t esi;
 	int32u_t ebp;
@@ -14,10 +16,19 @@ typedef struct _os_context {
 	int32u_t eax;
 	int32u_t eflags;
 	int32u_t eip;
-	/* high address */
 } _os_context_t;
 
+/************
+Function name : _os_create_context
 
+input : context's base address, size, entry point, argument
+output : context's top pointer
+
+Description :
+
+Initialize context starting from given stack base pointer.
+
+************/
 addr_t _os_create_context(addr_t stack_base, size_t stack_size, void (*entry)(void *), void *arg) {
 
 	addr_t cur = stack_base + stack_size - 4;
@@ -38,6 +49,18 @@ addr_t _os_create_context(addr_t stack_base, size_t stack_size, void (*entry)(vo
 	return cur;
 }
 
+/************
+Function name : _os_restore_context
+
+input : context stack pointer
+output : null
+
+Description :
+
+Change current stack pointer into context's top pointer
+Replace all register with popa command, pop _eflags, ret
+
+************/
 void _os_restore_context(addr_t sp) {
 	__asm__ __volatile__(
 			"mov 	%0, %%esp\n"
@@ -48,6 +71,18 @@ void _os_restore_context(addr_t sp) {
 		);
 }
 
+/************
+Function name : _os_save_context
+
+input : null
+output : context's top pointer
+
+Description :
+
+Save all registers onto the stack. Especially, save eax(return value) as 0.
+Replace eax with current esp. Push old EIP and EBP for returning this function.
+
+************/
 addr_t _os_save_context() {
 	__asm__ __volatile__(
 			"push	$resume_point\n"
@@ -65,7 +100,17 @@ addr_t _os_save_context() {
 		);
 }
 
+/************
+Function name : print_context
 
+input : context stack pointer
+output : null
+
+Description :
+
+not implemented.
+
+************/
 void print_context(addr_t context) {
 	if(context == NULL) return;
 	_os_context_t *ctx = (_os_context_t *)context;
