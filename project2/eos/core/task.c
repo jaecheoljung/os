@@ -1,31 +1,12 @@
-/********************************************************
- * Filename: core/task.c
- * 
- * Author: parkjy, RTOSLab. SNU.
- * 
- * Description: task management.
- ********************************************************/
 #include <core/eos.h>
-
 #define READY		1
 #define RUNNING		2
 #define WAITING		3
-
 
 static _os_node_t *_os_ready_queue[LOWEST_PRIORITY + 1];
 
 static eos_tcb_t *_os_current_task;
 
-/************
-Function name : eos_create_task
-
-input : tcb, context's base pointer, size, entry point, argument, priority
-output : 0
-
-Description :
-
-Initialize task block. Push it on ready queue
-************/
 int32u_t eos_create_task(eos_tcb_t *task, addr_t sblock_start, size_t sblock_size, void (*entry)(void *arg), void *arg, int32u_t priority) {
 
 	//Register task information
@@ -49,24 +30,10 @@ int32u_t eos_create_task(eos_tcb_t *task, addr_t sblock_start, size_t sblock_siz
 int32u_t eos_destroy_task(eos_tcb_t *task) {
 }
 
-/************
-Function name : eos_schedule()
-
-input : null
-output : null
-
-Description :
-
-If there is no task running, just pop ready queue and restore its context.
-If there is current processing task, save it first. Replace back it to ready queue.
-Find next task and pop it from ready queue. Restore its context and return -> go to 73 line.
-As it is right after restored, sp becomes 0 and end scheduling.
-
-************/
 void eos_schedule() {
+
+	if (_os_current_task != NULL){		
 	
-	if (_os_current_task != NULL){
-		
 		//Save context
 		addr_t sp = _os_save_context();
 
@@ -77,8 +44,7 @@ void eos_schedule() {
 		_os_current_task->state = READY;
 		_os_current_task->sp = sp;
 		_os_add_node_tail(&(_os_ready_queue[_os_current_task->node.priority]), &(_os_current_task->node));
-		_os_set_ready(_os_current_task->node.priority);
-
+	
 	}
 
 	//Find next task!
@@ -86,7 +52,7 @@ void eos_schedule() {
 	_os_current_task = (eos_tcb_t *) (_os_ready_queue[p]->ptr_data);
 	_os_current_task->state = RUNNING;
 
-	//Pop it from queue.
+	//Pop it from ready queue.
 	_os_remove_node(&(_os_ready_queue[p]), &(_os_current_task->node));
 
 	//Restore its context.
