@@ -49,10 +49,10 @@ void eos_schedule() {
 
 	//Find next task!
 	int32u_t p = _os_get_highest_priority();
-	_os_current_task = (eos_tcb_t *) (_os_ready_queue[p]->ptr_data);
-	_os_current_task->state = RUNNING;
 
 	//Pop it from ready queue.
+	_os_current_task = (eos_tcb_t *) (_os_ready_queue[p]->ptr_data);
+	_os_current_task->state = RUNNING;
 	_os_remove_node(&(_os_ready_queue[p]), &(_os_current_task->node));
 
 	//Restore its context.
