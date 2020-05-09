@@ -23,6 +23,7 @@ addr_t _os_create_context(addr_t stack_base, size_t stack_size, void (*entry)(vo
 	*(int32u_t*)cur = 0,		cur -= 4;	//ecx
 	*(int32u_t*)cur = 0,		cur -= 4;	//edx
 	*(int32u_t*)cur = 0,		cur -= 4;	//ebx
+	*(int32u_t*)cur = 0,		cur -= 4;	//ebp
 	*(int32u_t*)cur = 0,		cur -= 4;	//esi
 	*(int32u_t*)cur = 0;					//edi
 	return cur;
@@ -33,6 +34,7 @@ void _os_restore_context(addr_t sp) {
 			"mov 	%0, %%esp\n"
 			"pop	%%edi\n"
 			"pop	%%esi\n"
+			"pop	%%ebp\n"
 			"pop	%%ebx\n"
 			"pop	%%edx\n"
 			"pop	%%ecx\n"
@@ -51,6 +53,7 @@ addr_t _os_save_context() {
 			"push	%%ecx\n"
 			"push	%%edx\n"
 			"push	%%ebx\n"
+			"push	%%ebp\n"
 			"push	%%esi\n"
 			"push	%%edi\n"
 			"mov 	%%esp, %%eax\n"
