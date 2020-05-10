@@ -3,7 +3,7 @@
 #define RUNNING		2
 #define WAITING		3
 
-static _os_node_t *_os_ready_queue[LOWEST_PRIORITY + 1];
+static _os_node_t *_os_ready_queue[LOWEST_PRIORITY + 1] = {0,};
 
 static eos_tcb_t *_os_current_task;
 
@@ -33,17 +33,11 @@ void eos_schedule() {
 		_os_current_task->sp = sp;
 		_os_add_node_tail(&(_os_ready_queue[_os_current_task->node.priority]), &(_os_current_task->node));	
 	}
-	_os_node_t new_node = NULL;
-	for (int i=0; i<=LOWEST_PRIORITY; i++){
-		if (_os_ready_queue[i] != NULL){
-			new_node = _os_ready_queue[i];
-			break;
-		}
-	}
-	if (new_node == NULL) return;
-	_os_current_task = (eos_tcb_t *) (new_node->ptr_data);
+	int32u_t p = -1;
+	while(_os_ready_queue[++p] == 0);
+	_os_current_task = (eos_tcb_t *) (_os_ready_queue[p]->ptr_data);
 	_os_current_task->state = RUNNING;
-	_os_remove_node(&new_node, &(_os_current_task->node));
+	_os_remove_node(&_os_ready_queue[p], &(_os_current_task->node));
 	_os_restore_context(_os_current_task->sp);
 }
 
